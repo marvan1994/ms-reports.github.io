@@ -14256,145 +14256,17 @@ a.anchor-link {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput ">
 
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
-<span class="kn">import</span> <span class="nn">os</span> 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">sqlite3</span>
-<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="kn">from</span> <span class="nn">pandas.plotting</span> <span class="kn">import</span> <span class="n">table</span> 
-<span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">catboost</span>
-<span class="err">!</span><span class="n">pup</span> <span class="n">install</span> <span class="n">umap</span><span class="o">-</span><span class="n">learn</span>
-
-
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
-<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
-<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
-<span class="kn">from</span> <span class="nn">sklearn.utils.class_weight</span> <span class="kn">import</span> <span class="n">compute_class_weight</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">ExtraTreesClassifier</span>
-<span class="kn">from</span> <span class="nn">catboost</span> <span class="kn">import</span> <span class="n">CatBoostClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
-
-<span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;/MyDrive&#39;</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">sizeof_fmt</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;Ki&#39;</span><span class="p">,</span><span class="s1">&#39;Mi&#39;</span><span class="p">,</span><span class="s1">&#39;Gi&#39;</span><span class="p">,</span><span class="s1">&#39;Ti&#39;</span><span class="p">,</span><span class="s1">&#39;Pi&#39;</span><span class="p">,</span><span class="s1">&#39;Ei&#39;</span><span class="p">,</span><span class="s1">&#39;Zi&#39;</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1024.0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%3.1f</span><span class="s2"> </span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
-        <span class="n">num</span> <span class="o">/=</span> <span class="mf">1024.0</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%.1f</span><span class="s2"> </span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s1">&#39;Yi&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">sizes</span><span class="p">():</span>
-  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(((</span><span class="n">name</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
-                          <span class="n">key</span><span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[:</span><span class="mi">10</span><span class="p">]:</span>
-      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;30}</span><span class="s2">: </span><span class="si">{:&gt;8}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sizeof_fmt</span><span class="p">(</span><span class="n">size</span><span class="p">)))</span>
-
-<span class="k">def</span> <span class="nf">like_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">product_map</span><span class="p">):</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">product_map</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-            <span class="n">group</span> <span class="o">=</span> <span class="n">product_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">break</span>
-    <span class="k">return</span> <span class="n">group</span>
-
-<span class="k">def</span> <span class="nf">like_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">product_map</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span><span class="p">):</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="n">unknown</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">product_map</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-            <span class="n">group</span> <span class="o">=</span> <span class="n">product_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">break</span>
-    <span class="k">return</span> <span class="n">group</span>
-
-<span class="k">def</span> <span class="nf">mean_result</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">max_point</span><span class="p">):</span>
-    <span class="n">cor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">correct</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-    <span class="n">mp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">max_point</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">cor</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">make_25_quantile</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">make_75_quantile</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">.</span><span class="mi">75</span><span class="p">)</span>
-    
-<span class="k">def</span> <span class="nf">half_percent</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-  <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="o">&lt;</span><span class="mi">50</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df_list</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">path_initial</span> <span class="o">=</span> <span class="s1">&#39;/MyDrive/MyDrive/Методисты /УМИТЫ/Россия/ФАЙЛЫ ДЛЯ ИИ/Выгрузка_из_базы/ДЗ/&#39;</span>
-
-<span class="n">df_dz</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_initial</span><span class="o">+</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path_initial</span><span class="p">)])</span>
-<span class="n">df_dz</span> <span class="o">=</span> <span class="n">df_dz</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;class_degree&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="n">df_dz</span><span class="p">[</span><span class="s1">&#39;month_product&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dz</span><span class="o">.</span><span class="n">hw_open_date</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<span class="n">df_dz</span><span class="p">[</span><span class="s1">&#39;lesson_result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dz</span><span class="p">[</span><span class="s1">&#39;lesson_result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">100</span> <span class="ow">or</span> <span class="n">x</span><span class="o">&lt;</span><span class="mi">0</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
-
-<span class="n">path_initial</span> <span class="o">=</span> <span class="s1">&#39;/MyDrive/MyDrive/Методисты /УМИТЫ/Россия/ФАЙЛЫ ДЛЯ ИИ/Выгрузка_из_базы/Оплаты/&#39;</span>
-
-<span class="n">df_sales</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_initial</span><span class="o">+</span><span class="s1">&#39;покупки_мг_и_курсов.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;speaker != &quot;Преподаватель&quot;&#39;</span><span class="p">)</span>
-
-<span class="n">df_mg</span> <span class="o">=</span> <span class="n">df_sales</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_mg == 1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-<span class="n">mg_longate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_mg</span><span class="p">,</span> <span class="n">df_mg</span><span class="p">[[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;class_degree&#39;</span><span class="p">,</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">]],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;class_degree&#39;</span><span class="p">,</span><span class="s1">&#39;speaker&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product_y == month_product_x+1 or (month_product_y == 1 and month_product_x == 12)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;month_product_x&#39;</span><span class="p">:</span><span class="s1">&#39;month_product&#39;</span><span class="p">})[[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;class_degree&#39;</span><span class="p">,</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">]]</span>
-<span class="n">mg_longate</span><span class="p">[</span><span class="s1">&#39;longate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">df_mg_longate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_mg</span><span class="p">,</span> <span class="n">mg_longate</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;class_degree&#39;</span><span class="p">,</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">])</span>
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;longate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;longate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;class_degree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;class_degree&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="s1">&#39;ЕГЭ&#39;</span><span class="p">:</span><span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;ОГЭ&#39;</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;10 класс&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="s1">&#39;ЕГЭ. Базовая математика&#39;</span><span class="p">:</span><span class="mi">11</span><span class="p">})</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput ">
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Отчёт посвящён продлениям и сравнению процента продлений в разных группах.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;subject != &quot;Тестовый предмет&quot; and month_product != 7 and month_product != 5&#39;</span><span class="p">),</span> <span class="n">x</span><span class="o">=</span> <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;longate&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">,</span> <span class="n">hue</span> <span class="o">=</span> <span class="s1">&#39;month_product&#39;</span><span class="p">,</span><span class="n">err_style</span><span class="o">=</span><span class="s2">&quot;bars&quot;</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;bright&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell  jp-mod-noInput ">
 
 <div class="jp-Cell-outputWrapper">
 
@@ -14427,7 +14299,8 @@ a.anchor-link {
 </div>
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Любопытный график выше</p>
 <ul>
 <li>Месяцы делятся на 2 типа: Низкий уход и высокий.</li>
@@ -14437,34 +14310,11 @@ a.anchor-link {
 <p>Проверим вторую теорию</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df_c</span> <span class="o">=</span> <span class="n">df_sales</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_mg == 0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">df_predb</span> <span class="o">=</span> <span class="n">df_c</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product == 5 and is_free == 0&#39;</span><span class="p">)</span>
-<span class="n">df_predb</span><span class="p">[</span><span class="s1">&#39;is_predb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-
-
-<span class="n">s1</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product == 4&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">longate</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; %&#39;</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Процент учеников перешедших из апреля в май - </span><span class="si">{</span><span class="n">s1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="n">df_mg_longate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="p">,</span> <span class="n">df_predb</span><span class="p">[[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span><span class="s1">&#39;is_predb&#39;</span><span class="p">]],</span> <span class="n">how</span><span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span><span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;speaker&#39;</span><span class="p">])</span>
-<span class="n">df_mg_longate</span><span class="o">.</span><span class="n">is_predb</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="o">.</span><span class="n">is_predb</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">s2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product == 4&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">is_predb</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; %&#39;</span>
-<span class="n">s3</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product == 4 and longate == 0 and is_predb == 1&#39;</span><span class="p">))</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product == 4&#39;</span><span class="p">))</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Процент учеников перешедших из апреля в предбанник не взяв мастер-группу - </span><span class="si">{</span><span class="n">s3</span><span class="si">}</span><span class="s1"> %&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Если посмотреть на продление в разные месяцы, то получается такая картина: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product != 5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;month_product&#39;</span><span class="p">)[</span><span class="s1">&#39;longate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput ">
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Процент учеников перешедших из апреля в май - 73.34 %</p>
 <p>Процент учеников перешедших из апреля в предбанник не взяв мастер-группу - 9.49%</p>
 <p>Если посмотреть на продление в разные месяцы, то получается такая картина:</p>
@@ -14484,30 +14334,14 @@ a.anchor-link {
 
 </div>
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Итак, можно считать, что наше предположение подтвердилось.</p>
 <p>В лучший месяц процент продлений был <strong>84.14% (Октябрь)</strong>, а второй <strong>81.50% (Ноябрь)</strong>.</p>
 <p>Если считать, что из апреля в май перешло <strong>73.34%</strong> - в мг + <strong>9.49%</strong> - сразу на предбанник, то можно считать, что <strong>82.83%</strong> перешли из апреля в май. Это нисколько не является заниженным показателем.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product == 4&#39;</span><span class="p">),</span> <span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;longate&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;is_predb&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">)</span>
-<span class="n">e</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Процент тех, кто продлил/не продлил в апреле и пришёл на предбанник&#39;</span><span class="p">)</span>
-<span class="n">w</span><span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Продлили&#39;</span><span class="p">)</span>
-<span class="n">q</span><span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Купили предбанник (%)&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell  jp-mod-noInput ">
 
 <div class="jp-Cell-outputWrapper">
 
@@ -14530,25 +14364,14 @@ a.anchor-link {
 </div>
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <ul>
 <li>Интересный момент, который я заметил попутно. Из ребят, которые продлили и не продлили в апреле, практически одинаковый процент пошли на предбанник.</li>
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span><span class="s1">&#39;month_product&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;is_predb&#39;</span><span class="p">,</span> <span class="n">hue</span> <span class="o">=</span> <span class="s1">&#39;longate&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell  jp-mod-noInput ">
 
 <div class="jp-Cell-outputWrapper">
 
@@ -14581,7 +14404,8 @@ a.anchor-link {
 </div>
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <ul>
 <li><p>Интересный график сверху. Начиная от сентября и заканчивая мартом у нас растёт процент тех, кто в итоге запишется на предбанник, причём как среди тех, кто продлевает месяц, так и среди тех, кто уходит.</p>
 </li>
@@ -14590,33 +14414,7 @@ a.anchor-link {
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df_free_n_courses</span> <span class="o">=</span> <span class="n">df_c</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_free == 1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">])[</span><span class="s1">&#39;paid_at&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="s1">&#39;paid_at&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;paid_at&#39;</span><span class="p">:</span><span class="s1">&#39;n_free_courses&#39;</span><span class="p">})</span>
-<span class="n">df_paid_n_courses</span> <span class="o">=</span> <span class="n">df_c</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_free == 0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">])[</span><span class="s1">&#39;paid_at&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="s1">&#39;paid_at&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;paid_at&#39;</span><span class="p">:</span><span class="s1">&#39;n_paid_courses&#39;</span><span class="p">})</span>
-<span class="n">df_courses</span>  <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_free_n_courses</span><span class="p">,</span> <span class="n">df_paid_n_courses</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">df_mg_longate</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="p">,</span> <span class="n">df_courses</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;student_id&#39;</span><span class="p">,</span><span class="s1">&#39;month_product&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;is_free_courses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;n_free_courses&#39;</span><span class="p">]</span> <span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;is_paid_courses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;n_paid_courses&#39;</span><span class="p">]</span> <span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;paid_at&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;20&#39;</span><span class="o">+</span><span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;paid_at&#39;</span><span class="p">])</span>
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">])</span>
-<span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;is_before_begining&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;paid_at&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">df_mg_longate</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<span class="n">df_mg_longate</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;paid_at&#39;</span><span class="p">,</span> <span class="s1">&#39;product_title&#39;</span><span class="p">,</span> <span class="s1">&#39;is_free&#39;</span><span class="p">,</span> <span class="s1">&#39;is_mg&#39;</span><span class="p">,</span> <span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">,</span><span class="s1">&#39;is_predb&#39;</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-
-<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">df_mg_longate</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;month_product !=5&#39;</span><span class="p">),</span> <span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;is_free_courses&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;longate&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;is_paid_courses&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span> <span class="n">ax</span><span class="p">)</span>
-<span class="n">а</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Доля продлений при покупке курсов&#39;</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Бесплатные курсы&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Доля продлений&#39;</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell  jp-mod-noInput ">
 
 <div class="jp-Cell-outputWrapper">
 
@@ -14639,26 +14437,15 @@ a.anchor-link {
 </div>
 
 </div>
-<div class="jp-Cell-inputWrapper"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <ul>
 <li>График сверху демонстрирует, что среди тех кто использует бесплатные курсы - продлений больше, а так же среди тех кто использует бесплатные курсы совместно с платными - ещё больший процент продления.</li>
 </ul>
 <p>Иначе говоря "вероятность продления" при покупке бесплатных курсов или платных курсов - одинакова.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput ">
 
 </div>
 </body>
