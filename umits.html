@@ -1,13 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hello, World!</title>
-  <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
-  <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
-</head>
+<html>
 <body>
-  <py-script>print("Hello, World!")</py-script>
+
+<h2>Программа для привязывания умитов</h2>
+<h3>Выберите предмет</h3>
+<div>
+<select id = 'subject_select'>
+    <option value="mat">Математика</option>
+    <option value="rus">Русский</option>
+    <option value="ang">Английский</option>
+    <option value="him">Химия</option>
+</select>
+</div>
+<p id="demo"></p>
+<div>
+	<select id = 'subject_sections'></select>
+</div>
+
+<script>
+
+var select_subject = document.getElementById("subject_select");
+var select_sections = document.getElementById("subject_sections");
+select_subject.addEventListener("change", show_options);
+function show_options(event){
+	document.getElementById('demo').innerHTML = 'Выберите раздел:'
+	subject_name = event.target.value
+	q = {'mat':1,'rus':2,'ang':3,'him':'4'}
+	for (let i = 1; i <= q[subject_name]; i++) {
+	  const option = document.createElement("option");
+	  option.value = i;
+	  option.innerHTML = `Room ${i}`;
+
+	  select_sections.appendChild(option);
+	}
+	}
+
+</script>
+
 </body>
 </html>
+
+
+
