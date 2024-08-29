@@ -2,26 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport", content="width=device-width">
-    <title>MS reports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars Shakirov - Data Analysis Reports</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
-<h1>
-    Choose one report you want below
-</h1>
-    <div class="container">
-        <div class = "buttons">
-            <a href = "marketing_report.html" class="btn btn-1"> Отчёт для маркетинга</a>
-            <a href = "candels.html" class="btn btn-1"> Свечки </a>
-            <a href = "result_prediction_conclusion.html" class="btn btn-1"> Предсказание результатов </a>
-            <a href = "churn_report.html" class="btn btn-1"> Предсказание уходов</a>
-        </div>
-    </div>
+    <header>
+        <h1>Mars Shakirov</h1>
+        <p>Data Analysis Reports</p>
+    </header>
 
+    <main>
+        <h2>Jupyter based reports</h2>
+        <div class="report-grid">
+            <div class="report-card">
+                <h3>Marketing Report</h3>
+                <p>Comprehensive analysis of marketing campaigns and strategies.</p>
+                <a href="marketing_report.html" class="btn">View Report</a>
+            </div>
+            <div class="report-card">
+                <h3>Candlestick Analysis</h3>
+                <p>Time series analysis using candlestick charts for financial data.</p>
+                <a href="candels.html" class="btn">View Analysis</a>
+            </div>
+            <div class="report-card">
+                <h3>Result Prediction</h3>
+                <p>Predictive modeling for forecasting future outcomes.</p>
+                <a href="result_prediction_conclusion.html" class="btn">View Predictions</a>
+            </div>
+            <div class="report-card">
+                <h3>Churn Analysis</h3>
+                <p>Customer churn prediction and analysis report.</p>
+                <a href="churn_report.html" class="btn">View Report</a>
+            </div>
+        </div>
+
+        <h2>Tableau based reports</h2>
+        <div class="report-grid">
+            <div class="report-card">
+                <h3>Total Churn Rate 2022-2023</h3>
+                <p>Resulting table of churn rate analysis for 2022-2023.</p>
+                <a href="https://public.tableau.com/app/profile/mars.shakirov/viz/longate_22_23/sheet8" class="btn" target="_blank">View Tableau</a>
+            </div>
+            <div class="report-card">
+                <h3>Categorized Survey Results</h3>
+                <p>Report based on categorized survey answers.</p>
+                <a href="https://public.tableau.com/app/profile/mars.shakirov/viz/_16855820687870/Dashboard12" class="btn" target="_blank">View Tableau</a>
+            </div>
+            <div class="report-card">
+                <h3>Airline Integrators Analysis</h3>
+                <p>Report on airline integrators used for specific flight types.</p>
+                <a href="https://public.tableau.com/app/profile/mars.shakirov/viz/_16849643317350/sheet3" class="btn" target="_blank">View Tableau</a>
+            </div>
+            <div class="report-card">
+                <h3>Football Penalties Analysis</h3>
+                <p>Short analysis of penalties taken in football matches.</p>
+                <a href="https://public.tableau.com/app/profile/mars.shakirov/viz/Penalties_16600547857770/Dashboard2" class="btn" target="_blank">View Tableau</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Mars Shakirov. All rights reserved.</p>
+    </footer>
 </body>
 </html>
